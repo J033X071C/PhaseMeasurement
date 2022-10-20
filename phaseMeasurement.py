@@ -112,11 +112,8 @@ def phaseMeas():
         trigDelta[i] = trigTime[1,i]-trigTime[0,i]
         
     
-        
-        if trigDelta[i] == 0:
-            delta [i] = (phase[1,i]-phase[0,i]) * 8.0
-        else:
-            delta[i] = 9999
+        delta [i] = (phase[1,i]-phase[0,i]) * 8.0
+
             
     return
 def gaussian(x,amp,mean,std):
@@ -128,7 +125,41 @@ def plotsAndNumbers():
     min_hist=args.minHist
     max_hist=args.maxHist
     bin_hist=args.numberBin
-    
+
+
+
+    # set data with subplots and plot
+    plt.subplot(3,1,1)
+    plt.plot(waveform1, color = "blue")
+    plt.title("VX2740 Waveform")
+    plt.subplot(3,1,2)
+    plt.plot(offset1 + amplitude1 * np.sin(2*np.pi*np.arange(0, np.size(waveform1), 1)/period1-2*np.pi*(phase1/period1)), color = "orange")
+    plt.title("First approximation")
+    plt.subplot(3,1,3)
+    plt.plot(fit1, color = "green")
+    plt.title("Fit")
+    if args.saveAsPDF== 'yes':
+        plt.savefig(args.fileName+'_Waveform.pdf')      
+        
+    plt.show()
+
+    plt.plot(trigDelta)
+    plt.title("Difference between VX1 and VX2 trigger time stamps")
+    plt.ylabel("Difference in trigger time stamps")
+    plt.xlabel("Event number")
+    plt.show()
+    if args.saveAsPDF== 'yes':
+        plt.savefig(args.fileName+'_TriggerDelta.pdf')
+        
+    plt.plot(delta)
+    plt.title("Phase difference between VX1 and VX2 for each event (in seconds)")
+    plt.ylabel("Phase difference in seconds")
+    plt.ylim(min_hist,max_hist)
+    plt.xlabel("Event number")
+    plt.show()
+    if args.saveAsPDF== 'yes':
+        plt.savefig(args.fileName+'_PhaseGraph.pdf')    
+
     print("bin size = {:.3f} ns".format((max_hist-min_hist)/bin_hist))
     bins = plt.hist(delta, bins = bin_hist, range = (min_hist,max_hist))[1]
     heights = plt.hist(delta, bins = bin_hist, range = (min_hist,max_hist))[0]
@@ -160,35 +191,30 @@ def plotsAndNumbers():
     
     
     
-    popt3,pcov3 = sp.optimize.curve_fit(gaussian, centerbin, heights, [np.max(heights),mean,np.std(bins)])
-    plt.plot(np.linspace(min_hist,max_hist,sizeEv), gaussian(np.linspace(min_hist,max_hist,sizeEv), popt3[0],popt3[1],popt3[2]))
-    
-    centroid = (np.linspace(min_hist,max_hist,sizeEv))[np.argmax(gaussian(np.linspace(min_hist,max_hist,sizeEv), popt3[0],popt3[1],popt3[2]))]
-    sigma = np.sqrt(2*np.log(2))*popt3[2]
-    std_error = (popt3[2]/np.sqrt(num_events))
-    if num_events > 10:
-        popt3,pcov3 = sp.optimize.curve_fit(gaussian, centerbin, heights, [np.max(heights),mean,np.std(bins)])
-        plt.plot(np.linspace(min_hist,max_hist,sizeEv), gaussian(np.linspace(min_hist,max_hist,sizeEv), popt3[0],popt3[1],popt3[2]))
-        centroid = (np.linspace(min_hist,max_hist,sizeEv))[np.argmax(gaussian(np.linspace(min_hist,max_hist,sizeEv), popt3[0],popt3[1],popt3[2]))]
-        sigma = np.sqrt(2*np.log(2))*popt3[2]
-        std_error = (popt3[2]/np.sqrt(num_events))
-        
-        print("centroid = {:.3f} ns.".format(centroid))
-        print("width (sigma) = {:.3f} ns.".format(sigma))
-        print("error on the centroid = {:.6f} ns.".format(std_error))
-        
-        # xxx = 8
 
-        # plt.text(x = xxx, y = 10, s = "num_events = {}".format(num_events),size = 13)
-        # plt.text(x = xxx, y = 9.5, s = "bin size = {:.3f} ns".format((max_hist-min_hist)/bin_hist),size = 13)
-        # plt.text(x = xxx, y = 9, s = "mean = {:.3f} ns".format(mean),size = 13)
-        # plt.text(x = xxx, y = 8.5, s = "rms = {:.3f} ns.".format(rms),size = 13)
-        # plt.text(x = xxx, y = 8, s = "mean_error = {:.3f} ns.".format(mean_error),size = 13) 
-        # plt.text(x = xxx, y = 5, s =  "centroid = {:.3f} ns.".format(centroid),size = 13)
-        # plt.text(x = xxx, y = 4.5, s =  "width (sigma) = {:.3f} ns.".format(sigma),size = 13)
-        # plt.text(x = xxx, y = 4, s =  "error on the centroid = {:.6f} ns.".format(std_error),size = 13)
+
+    if  num_events > 10:
+         popt3,pcov3 = sp.optimize.curve_fit(gaussian, centerbin, heights, [np.max(heights),mean,np.std(bins)])
+         plt.plot(np.linspace(min_hist,max_hist,sizeEv), gaussian(np.linspace(min_hist,max_hist,sizeEv), popt3[0],popt3[1],popt3[2]))
+         centroid = (np.linspace(min_hist,max_hist,sizeEv))[np.argmax(gaussian(np.linspace(min_hist,max_hist,sizeEv), popt3[0],popt3[1],popt3[2]))]
+         sigma = np.sqrt(2*np.log(2))*popt3[2]
+         std_error = (popt3[2]/np.sqrt(num_events))
+        
+         print("centroid = {:.3f} ns.".format(centroid))
+         print("width (sigma) = {:.3f} ns.".format(sigma))
+         print("error on the centroid = {:.6f} ns.".format(std_error))
+        
+         # xxx = 8
+         # plt.text(x = xxx, y = 10, s = "num_events = {}".format(num_events),size = 13)
+         # plt.text(x = xxx, y = 9.5, s = "bin size = {:.3f} ns".format((max_hist-min_hist)/bin_hist),size = 13)
+         # plt.text(x = xxx, y = 9, s = "mean = {:.3f} ns".format(mean),size = 13)
+         # plt.text(x = xxx, y = 8.5, s = "rms = {:.3f} ns.".format(rms),size = 13)
+         # plt.text(x = xxx, y = 8, s = "mean_error = {:.3f} ns.".format(mean_error),size = 13) 
+         # plt.text(x = xxx, y = 5, s =  "centroid = {:.3f} ns.".format(centroid),size = 13)
+         # plt.text(x = xxx, y = 4.5, s =  "width (sigma) = {:.3f} ns.".format(sigma),size = 13)
+         # plt.text(x = xxx, y = 4, s =  "error on the centroid = {:.6f} ns.".format(std_error),size = 13)
     
-    if args.writeToTXT == 'yes':
+    if  args.writeToTXT == 'yes':
         f = open(args.fileName+".txt","w+")
         f.write("num_events = {}\n".format(num_events))
         f.write("bin size = {:.3f} ns\n".format((max_hist-min_hist)/bin_hist))
@@ -200,54 +226,17 @@ def plotsAndNumbers():
         f.write("error on the centroid = {:.6f} ns\n".format(std_error))
         f.close()
     
-    plt.title("Phase between VX1-VX2 and gaussian fit", fontsize = 20)
+    plt.title("Phase between VX2-VX1 and gaussian fit", fontsize = 20)
     plt.ylabel("Number of events", fontsize = 16)
     plt.xlabel("Phase in ns", fontsize = 16)
     plt.yticks(fontsize=14)
     plt.xticks(fontsize=14)
     plt.show()
     if args.saveAsPDF== 'yes':
-        plt.savefig(args.fileName+'_Histogram&Gaussian.pdf')  
+        plt.savefig(args.fileName+'_Histogram&Gaussian.pdf')     
     
-    
-    
-    
-    plt.figure()
-    plt.plot(delta)
-    plt.title("Phase difference between VX1 and VX2 for each event (in seconds)")
-    plt.ylabel("Phase difference in seconds")
-    plt.ylim(min_hist,max_hist)
-    plt.xlabel("Event number")
-    plt.show()
-    if args.saveAsPDF== 'yes':
-        plt.savefig(args.fileName+'_PhaseGraph.pdf')    
-    
-    plt.figure()
-    plt.plot(trigDelta)
-    plt.title("Difference between VX1 and VX2 trigger time stamps")
-    plt.ylabel("Difference in trigger time stamps")
-    plt.xlabel("Event number")
-    plt.show()
-    if args.saveAsPDF== 'yes':
-        plt.savefig(args.fileName+'_TriggerDelta.pdf')      
-    
-    
-    # making subplots
-    
-    fig, ax = plt.subplots(3, 1)
-     
-    # set data with subplots and plot
-    ax[0].plot(waveform1, color = "blue")
-    ax[0].title.set_text("VX2740 Waveform")
-    ax[1].plot(offset1 + amplitude1 * np.sin(2*np.pi*np.arange(0, np.size(waveform1), 1)/period1-2*np.pi*(phase1/period1)), color = "orange")
-    ax[1].title.set_text("First approximation")
-    ax[2].plot(fit1, color = "green")
-    ax[2].title.set_text("Fit")
-    fig.tight_layout(pad=2.5)
-    plt.show()
-    if args.saveAsPDF== 'yes':
-        plt.savefig(args.fileName+'_Waveform.pdf')      
-    return
+    return 
+
 
 phaseParser()
 fileRead("/zssd/home1/vx_napoli/online/data/"+args.fileName,args.numberEvents,args.numberVX,args.sizeEvents,args.stopEvent)
