@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import scipy as sp
 import numpy as np
 import argparse
+import math
 from scipy import optimize
 
 def phaseParser():
@@ -94,7 +95,7 @@ def phaseMeas():
     trigDelta = np.empty(numEvents) 
     delta = np.empty(numEvents)
     
- 	
+    x = 0
     for i in range(numEvents):
     
 #        print(i,trigTime[0,i], trigTime[1,i])
@@ -110,9 +111,19 @@ def phaseMeas():
                       phase[1,i] = phase[1,i] - period2
             
         trigDelta[i] = trigTime[1,i]-trigTime[0,i]
+        delta[i]=(phase[1,i]-phase[0,i]) * 8.0
+#        if trigDelta[i] == 0.0:
+#            trigDelta[i]= np.nan
+#        if trigDelta[i] == -1:
+#            trigDelta[i]= np.nan
+
+#        delta [i] = 9999
         
-    
-        delta [i] = (phase[1,i]-phase[0,i]) * 8.0
+#        if math.isnan(trigDelta[i])== 0:
+#            delta[i]=(phase[1,i]-phase[0,i]) * 8.0
+       #    print(x)
+       #    x = x+1
+        
 
             
     return
@@ -126,40 +137,34 @@ def plotsAndNumbers():
     max_hist=args.maxHist
     bin_hist=args.numberBin
 
-
-
-    # set data with subplots and plot
-    plt.subplot(3,1,1)
+        
+    plt.figure()
+    plt.subplot(2,2,1)
     plt.plot(waveform1, color = "blue")
     plt.title("VX2740 Waveform")
-    plt.subplot(3,1,2)
-    plt.plot(offset1 + amplitude1 * np.sin(2*np.pi*np.arange(0, np.size(waveform1), 1)/period1-2*np.pi*(phase1/period1)), color = "orange")
-    plt.title("First approximation")
-    plt.subplot(3,1,3)
-    plt.plot(fit1, color = "green")
-    plt.title("Fit")
-    if args.saveAsPDF== 'yes':
-        plt.savefig(args.fileName+'_Waveform.pdf')      
-        
-    plt.show()
 
+    
+    plt.subplot(2,2,2)
     plt.plot(trigDelta)
     plt.title("Difference between VX1 and VX2 trigger time stamps")
     plt.ylabel("Difference in trigger time stamps")
     plt.xlabel("Event number")
-    plt.show()
-    if args.saveAsPDF== 'yes':
-        plt.savefig(args.fileName+'_TriggerDelta.pdf')
-        
+
+
+
+    plt.subplot(2,2,4)    
     plt.plot(delta)
     plt.title("Phase difference between VX1 and VX2 for each event (in seconds)")
     plt.ylabel("Phase difference in seconds")
     plt.ylim(min_hist,max_hist)
     plt.xlabel("Event number")
-    plt.show()
-    if args.saveAsPDF== 'yes':
-        plt.savefig(args.fileName+'_PhaseGraph.pdf')    
 
+
+
+
+
+    
+    plt.subplot(2,2,3)
     print("bin size = {:.3f} ns".format((max_hist-min_hist)/bin_hist))
     bins = plt.hist(delta, bins = bin_hist, range = (min_hist,max_hist))[1]
     heights = plt.hist(delta, bins = bin_hist, range = (min_hist,max_hist))[0]
@@ -226,14 +231,18 @@ def plotsAndNumbers():
         f.write("error on the centroid = {:.6f} ns\n".format(std_error))
         f.close()
     
-    plt.title("Phase between VX2-VX1 and gaussian fit", fontsize = 20)
-    plt.ylabel("Number of events", fontsize = 16)
-    plt.xlabel("Phase in ns", fontsize = 16)
-    plt.yticks(fontsize=14)
-    plt.xticks(fontsize=14)
-    plt.show()
+    plt.title("Phase between VX2-VX1 and gaussian fit")
+    plt.ylabel("Number of events")
+    plt.xticks(np.arange(min_hist,max_hist,1),rotation = 45)
+    plt.xlabel("Phase in ns")
+
     if args.saveAsPDF== 'yes':
-        plt.savefig(args.fileName+'_Histogram&Gaussian.pdf')     
+        figManager = plt.get_current_fig_manager()
+        figManager.window.showMaximized()
+        plt.pause(0.5)
+        plt.savefig(args.fileName+'_Plots.pdf')
+    plt.show()
+     
     
     return 
 
