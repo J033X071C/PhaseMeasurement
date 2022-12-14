@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html class="mcss">
+<head>
+   <meta charset="UTF-8">
+   <link rel="stylesheet" href="midas.css">
+   <script src="controls.js"></script>
+   <script src="midas.js"></script>
+   <script src="mhttpd.js"></script>
+   <script src="vx2740.js"></script>
+   <title>VX2740 settings</title>
+
+   <style>
+      .mtable td { padding: 3px; }
+      .has_override { background-color: var(--myellow) !important; }
+   </style>
+</head>
+
+<body class="mcss" onload="ds.vx2740.init()">
+
+<!-- header and side navigation will be filled in mhttpd_init -->
+<div id="mheader"></div>
+<div id="msidenav"></div>
+
+<div id="mmain" class="mfont" style="padding:10px">
+  <p id="group_info">
+	  The VX2740 group frontend structure lets you set some "default" parameters that apply to all boards,
+	  then specific "override" values for individual boards. Parameters that have been overridden for specific
+	  boards are highlighted in yellow. Use the &plus;/&minus; buttons to add/remove overridden values.
+	  <br><small id="group_to_single_help">If you no longer want to run the "group" frontends, and want to revert to the "single" frontends,
+	  delete the ODB key <code>/VX2740 defaults</code>, then refresh this page to see an updated interface.</small>
+  </p>
+  <p id="single_info">
+    This page allows you to configure the settings for the VX2740 "single-board" frontends. If you want to use
+    the "group" frontends, start a group frontend then refresh this page to see an updated interface.
+  </p>
+  <p>
+    Midas does not support 64-bit values in the ODB, so some channel masks are split into two - one for channels
+    0-31 and one for channels 32-63.
+  </p>
+  <p>
+    The VX2740 has <i>two</i> internal self-triggers for comparing waveforms to
+    threshold values; these are referred to as A and B; you can enable neither, either, both, or require a 
+    coincidence of both.
+  </p>
+  <div style="display: flex;">
+    <span style="min-width:80px">Jump to:</span>
+    <div style="display: inline-block" id="links"></div>
+  </div>
+  
+  <div id="force_update_buttons"></div>
+  
+  <table class="mtable" id="group_settings" style="font-size: smaller;">
+  </table>
+
+  <table class="mtable" id="board_settings" style="font-size: smaller;">
+  </table>
+
+</div>
+
+
+</body>
+</html>

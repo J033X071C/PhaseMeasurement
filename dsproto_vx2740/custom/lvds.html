@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html class="mcss">
+<head>
+   <meta charset="UTF-8">
+   <link rel="stylesheet" href="midas.css">
+   <script src="controls.js"></script>
+   <script src="midas.js"></script>
+   <script src="mhttpd.js"></script>
+   <script src="vx2740.js"></script>
+   <script src="lvds.js"></script>
+   <title>VX2740 LVDS settings</title>
+
+   <style>
+      .mtable td { padding: 3px; }
+      .has_override { background-color: var(--myellow) !important; }
+   </style>
+</head>
+
+<body class="mcss" onload="ds.lvds.init()">
+
+<!-- header and side navigation will be filled in mhttpd_init -->
+<div id="mheader"></div>
+<div id="msidenav"></div>
+
+<div id="mmain" class="mfont" style="padding:10px">
+  <p id="group_info">
+	  The VX2740 group frontend structure lets you set some "default" parameters that apply to all boards,
+	  then specific "override" values for individual boards. Parameters that have been overridden for specific
+	  boards are highlighted in yellow. Use the &plus;/&minus; buttons to add/remove overridden values.
+  </p>
+  <p style="font-weight:bold">
+    Settings are not applied to the board until you start a run or click the "Apply settings now" button.
+  </p>
+
+  <div id="force_update_buttons"></div>
+  <table class="mtable" id="board_settings" style="font-size: smaller;">
+  </table>
+</div>
+
+
+</body>
+</html>

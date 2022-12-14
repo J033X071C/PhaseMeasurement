@@ -1,0 +1,19 @@
+build
+make-build-debug
+cmake-build-release
+xcode
+bin
+lib
+msc
+darwin
+linux
+tmp
+git-revision.h
+ssl_cert.csr
+ssl_cert.key
+ssl_cert.pem
+*~
+set_env.sh
+*.egg-info
+*.pyc
+/Build (GNU)/
