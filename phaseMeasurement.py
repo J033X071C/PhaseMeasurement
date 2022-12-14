@@ -1,5 +1,6 @@
 import midas.file_reader
 import dsproto_vx2740.dump_vx2740_data
+import matplotlib
 import matplotlib.pyplot as plt
 import scipy as sp
 import numpy as np
@@ -59,11 +60,12 @@ def fileRead (filePath, numberEvents, numberVX, sizeEvents, stopEvent):
                         phase[0,vx.event_counter] = popt1[0][3]
                         amplitude[0,vx.event_counter] = popt1[0][1]
                         trigTime[0,vx.event_counter] = vx.trigger_time_ticks
-        
-
+                        
                         if vx.event_counter > stopEvent:
                             flag1 =1
-    				
+                        ####### FOR DEBUGGING PURPOSES #######
+                       #print("VX#2 Event number: ",vx.event_counter)
+                       #print("Timestamp is: " ,vx.trigger_time_ticks)
                     if vx.board_id == 1:
                         board2[vx.event_counter] = np.array(vx.waveforms.get(0))
                         waveform2 = vx.waveforms.get(0)
@@ -77,12 +79,11 @@ def fileRead (filePath, numberEvents, numberVX, sizeEvents, stopEvent):
                         phase[1,vx.event_counter] = popt2[3]                    
                         amplitude[1,vx.event_counter] = popt2[1]
                         trigTime[1,vx.event_counter] = vx.trigger_time_ticks
-                        
-                        
                         if vx.event_counter > stopEvent:
                             flag2 = 1
-
-                    
+                        ####### FOR DEBUGGING PURPOSES #######
+                       #print("VX#1 Event number: ",vx.event_counter)
+                       #print("Timestamp is: " ,vx.trigger_time_ticks)
         if flag1 == 1 and flag2 == 1:
             break
     numEvents = vx.event_counter
@@ -97,8 +98,7 @@ def phaseMeas():
     
     x = 0
     for i in range(numEvents):
-    
-#        print(i,trigTime[0,i], trigTime[1,i])
+
     
         if np.sign(amplitude[0,i]) != np.sign(amplitude[1,i]):
             if np.sign(amplitude[0,i]) == -1 and np.sign(amplitude[1,i]) == 1:
@@ -141,6 +141,7 @@ def plotsAndNumbers():
     plt.figure()
     plt.subplot(2,2,1)
     plt.plot(waveform1, color = "blue")
+    plt.plot(waveform2, color = "red")
     plt.title("VX2740 Waveform")
 
     
@@ -154,8 +155,8 @@ def plotsAndNumbers():
 
     plt.subplot(2,2,4)    
     plt.plot(delta)
-    plt.title("Phase difference between VX1 and VX2 for each event (in seconds)")
-    plt.ylabel("Phase difference in seconds")
+    plt.title("Phase difference between VX1 and VX2 for each event (in ns)")
+    plt.ylabel("Phase difference in ns")
     plt.ylim(min_hist,max_hist)
     plt.xlabel("Event number")
 
@@ -172,7 +173,7 @@ def plotsAndNumbers():
     for i in range(0, np.size(bins)-1, 1):
         centerbin[i] = (bins[i]+bins[i+1])/2
     #num_bins = np.size(heights)
-    num_events = np.sum(heights)
+    num_events = numEvents
     print("num_events = ",num_events)
     mean = np.sum(centerbin*heights)/num_events
     print("mean = {:.3f} ns".format(mean))
@@ -218,6 +219,8 @@ def plotsAndNumbers():
          # plt.text(x = xxx, y = 5, s =  "centroid = {:.3f} ns.".format(centroid),size = 13)
          # plt.text(x = xxx, y = 4.5, s =  "width (sigma) = {:.3f} ns.".format(sigma),size = 13)
          # plt.text(x = xxx, y = 4, s =  "error on the centroid = {:.6f} ns.".format(std_error),size = 13)
+
+
     
     if  args.writeToTXT == 'yes':
         f = open(args.fileName+".txt","w+")
@@ -229,9 +232,12 @@ def plotsAndNumbers():
         f.write("centroid = {:.3f} ns\n".format(centroid))
         f.write("width (sigma) = {:.3f} ns\n".format(sigma))
         f.write("error on the centroid = {:.6f} ns\n".format(std_error))
+
+        f.write("number of events with different timestamps: {}\n".format(np.sum(np.abs(trigDelta))))
+        f.write("percentage of events with different timestamps: {:.2f}\n".format((100*np.sum(np.abs(trigDelta)))/num_events))
         f.close()
     
-    plt.title("Phase between VX2-VX1 and gaussian fit")
+    plt.title("Histogram of the phase between the two digitizers and gaussian fit")
     plt.ylabel("Number of events")
     plt.xticks(np.arange(min_hist,max_hist,1),rotation = 45)
     plt.xlabel("Phase in ns")
