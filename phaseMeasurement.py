@@ -1,3 +1,4 @@
+import sys
 import midas.file_reader
 import dsproto_vx2740.dump_vx2740_data
 import matplotlib
@@ -209,7 +210,8 @@ def plotsAndNumbers():
          print("centroid = {:.3f} ns.".format(centroid))
          print("width (sigma) = {:.3f} ns.".format(sigma))
          print("error on the centroid = {:.6f} ns.".format(std_error))
-        
+         print("number of events with different timestamps: {}".format(np.sum(np.abs(trigDelta))))
+         print("percentage of events with different timestamps: {:.2f}".format((100*np.sum(np.abs(trigDelta)))/num_events))
          # xxx = 8
          # plt.text(x = xxx, y = 10, s = "num_events = {}".format(num_events),size = 13)
          # plt.text(x = xxx, y = 9.5, s = "bin size = {:.3f} ns".format((max_hist-min_hist)/bin_hist),size = 13)
